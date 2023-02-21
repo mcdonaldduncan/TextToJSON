@@ -32,9 +32,8 @@ namespace TextToJSON
 
             Engine engine = new Engine();
 
-            if (engine.ProcessFiles(filesToProcess, out string report))
+            if (engine.ProcessFiles(filesToProcess))
             {
-                Console.WriteLine(report);
                 Console.WriteLine($"Processed files can be found in {directoryPath}");
             }
             else

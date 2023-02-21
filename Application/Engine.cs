@@ -11,7 +11,7 @@ namespace TextToJSON
 {
     sealed class Engine
     {
-        //StringBuilder report = new StringBuilder();
+        
         string errorFile = string.Empty;
 
         /// <summary>
@@ -19,7 +19,7 @@ namespace TextToJSON
         /// </summary>
         /// <param name="filesToProcess">List of Ideliminated files prepared by the parser and MyFile constructor</param>
         /// <returns errors>List of errors while processing</returns>
-        public bool ProcessFiles(List<IDeliminated> filesToProcess, out string reportString)
+        public bool ProcessFiles(List<IDeliminated> filesToProcess)
         {
             Thread[] threads = new Thread[filesToProcess.Count];
 
@@ -27,9 +27,11 @@ namespace TextToJSON
             {
                 for (int i = 0; i < filesToProcess.Count; i++)
                 {
-                    threads[i] = new Thread(() => ProcessFile(filesToProcess[i]));
+                    int temp = i;
+                    threads[temp] = new Thread(() => ProcessFile(filesToProcess[temp]));
 
-                    threads[i].Start();
+                    threads[temp].Start();
+                    Console.WriteLine($"Thread{i} Started");
                 }
 
                 foreach (var thread in threads)
@@ -40,23 +42,20 @@ namespace TextToJSON
             catch (Exception e)
             {
                 ErrorCollection.Instance.Errors.Add(new Error(e.Message, e.Source ?? "Unknown"));
-                //report.AppendLine($"Error while processing files, check errors for more detail");
-                //report.AppendLine(breakLine);
-                reportString = string.Empty;
+                Console.WriteLine($"Error while processing files, check errors for more detail");
+                
                 return false;
             }
 
-            //report.AppendLine("Files processed succesfully");
-            
-            reportString = string.Empty;
             return true;
         }
 
         void ProcessFile(IDeliminated deliminatedFile)
         {
-            //report.AppendLine(breakLine);
-            //report.AppendLine(DateTime.Now.ToString());
-            //report.AppendLine($"Processing {deliminatedFile.FileName}");
+            StringBuilder report = new StringBuilder();
+            report.AppendLine(breakLine);
+            report.AppendLine(DateTime.Now.ToString());
+            report.AppendLine($"Processing {deliminatedFile.FileName}");
 
             //errorFile = deliminatedFile.FileName;
 
@@ -83,7 +82,7 @@ namespace TextToJSON
                         fieldsCollected = true;
                     }
                 }
-                //report.AppendLine("File read successful");
+                report.AppendLine("File read successful");
             }
 
             using (StreamWriter sw = new StreamWriter(writePath, true))
@@ -110,10 +109,12 @@ namespace TextToJSON
 
                 sw.Write("]");
 
-                //report.AppendLine("File write successful");
-                //report.AppendLine($"Location: {writePath}");
-                //report.AppendLine(breakLine);
+                report.AppendLine("File write successful");
+                report.AppendLine($"Location: {writePath}");
+                report.AppendLine(breakLine);
             }
+
+            Console.WriteLine(report.ToString());
         }
     }
 }
