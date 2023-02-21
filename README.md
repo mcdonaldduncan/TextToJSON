@@ -1,6 +1,6 @@
 # TextToJSON
  
-Multi-threaded console appplication to process bulk csv or pipe files to JSON
+Multi-threaded console application to process bulk csv or pipe files to JSON
 
 Very quick v1, there is a high chance of issues with edge cases, this is not a comprehensive solution
 
