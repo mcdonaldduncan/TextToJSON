@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextToJSON", "TextToJSON.csproj", "{594F1711-01E3-409D-AD1C-A9C7C97B578F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{594F1711-01E3-409D-AD1C-A9C7C97B578F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{594F1711-01E3-409D-AD1C-A9C7C97B578F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{594F1711-01E3-409D-AD1C-A9C7C97B578F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{594F1711-01E3-409D-AD1C-A9C7C97B578F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D4F9C307-9A3E-4789-B430-9928D65AEBEF}
+	EndGlobalSection
+EndGlobal
