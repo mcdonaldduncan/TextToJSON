@@ -53,19 +53,17 @@ namespace TextToJSON
         void ProcessFile(IDeliminated deliminatedFile)
         {
             StringBuilder report = new StringBuilder();
+
+            List<string[]> lines = new List<string[]>();
+            string[] fields = null;
+
             report.AppendLine(breakLine);
             report.AppendLine(DateTime.Now.ToString());
             report.AppendLine($"Processing {deliminatedFile.FileName}");
 
-            //errorFile = deliminatedFile.FileName;
-
-            List<string[]> lines = new List<string[]>();
-            string[] fields = null;
-            string writePath = deliminatedFile.FilePath.Replace(deliminatedFile.Extension, $"_out{FileExtensions.JSON}");
-
-            if (File.Exists(writePath))
+            if (File.Exists(deliminatedFile.WritePath))
             {
-                File.Delete(writePath);
+                File.Delete(deliminatedFile.WritePath);
             }
 
             using (StreamReader sr = new StreamReader(deliminatedFile.FilePath))
@@ -85,7 +83,7 @@ namespace TextToJSON
                 report.AppendLine("File read successful");
             }
 
-            using (StreamWriter sw = new StreamWriter(writePath, true))
+            using (StreamWriter sw = new StreamWriter(deliminatedFile.WritePath, true))
             {
                 sw.WriteLine("[");
 
@@ -110,7 +108,7 @@ namespace TextToJSON
                 sw.Write("]");
 
                 report.AppendLine("File write successful");
-                report.AppendLine($"Location: {writePath}");
+                report.AppendLine($"Location: {deliminatedFile.WritePath}");
                 report.AppendLine(breakLine);
             }
 

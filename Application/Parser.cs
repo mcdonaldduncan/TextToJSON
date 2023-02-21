@@ -34,7 +34,7 @@ namespace TextToJSON
 
             if (engine.ProcessFiles(filesToProcess))
             {
-                Console.WriteLine($"Processed files can be found in {directoryPath}");
+                Console.WriteLine($"Processed files can be found in {writeDirectory}");
             }
             else
             {

@@ -12,5 +12,6 @@ namespace TextToJSON
         public string FilePath { get; set; }
         public string Extension { get; set; }
         public string FileName { get; set; }
+        public string WritePath { get; set; }
     }
 }

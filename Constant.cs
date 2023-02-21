@@ -10,9 +10,13 @@ namespace TextToJSON
     {
         private const string folderName = "temp";
 
+        private const string writeFolder = "out";
+
         public const string breakLine = "---------------------------------------------------------------------------------------------------------";
 
         public static string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+
+        public static string writeDirectory = Path.Combine(directoryPath, writeFolder);
 
         public sealed class FileExtensions
         {

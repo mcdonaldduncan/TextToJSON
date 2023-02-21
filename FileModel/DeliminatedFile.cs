@@ -14,12 +14,13 @@ namespace TextToJSON
         private string filePath;
         private string extension;
         private string fileName;
+        private string writePath;
 
         public string Delimiter { get => delimiter; set => delimiter = value; }
         public string FilePath { get => filePath; set => filePath = value; }
         public string Extension { get => extension; set => extension = value; }
         public string FileName { get => fileName; set => fileName = value; }
-
+        public string WritePath { get => writePath; set => writePath = value; }
 
         public DeliminatedFile(string _fileName)
         {
@@ -29,17 +30,20 @@ namespace TextToJSON
             {
                 delimiter = FileDelimiters.Pipe;
                 extension = FileExtensions.Pipe;
+                writePath = Path.Combine(writeDirectory, fileName).Replace(extension, $"_out{FileExtensions.JSON}");
+                filePath = Path.Combine(directoryPath, _fileName);
             }
             else if (_fileName.EndsWith(FileExtensions.CSV))
             {
                 delimiter = FileDelimiters.CSV;
                 extension = FileExtensions.CSV;
+                writePath = Path.Combine(writeDirectory, fileName).Replace(extension, $"_out{FileExtensions.JSON}");
+                filePath = Path.Combine(directoryPath, _fileName);
             }
             else
             {
                 ErrorCollection.Instance.Errors.Add(new Error($"Invalid File Extension, {_fileName.Substring(_fileName.LastIndexOf("."))} is not supported", $"{_fileName}"));
             }
-            filePath = Path.Combine(directoryPath, _fileName);
         }
 
     }
