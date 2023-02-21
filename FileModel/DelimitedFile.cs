@@ -8,7 +8,7 @@ using TextToJSON.ErrorReporting;
 
 namespace TextToJSON
 {
-    internal sealed class DeliminatedFile : IDeliminated
+    internal sealed class DelimitedFile : IDelimited
     {
         private string delimiter;
         private string filePath;
@@ -22,7 +22,7 @@ namespace TextToJSON
         public string FileName { get => fileName; set => fileName = value; }
         public string WritePath { get => writePath; set => writePath = value; }
 
-        public DeliminatedFile(string _fileName)
+        public DelimitedFile(string _fileName)
         {
             fileName = _fileName.Substring(_fileName.LastIndexOf(@"\") + 1);
 

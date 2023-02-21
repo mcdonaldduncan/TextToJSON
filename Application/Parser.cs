@@ -9,7 +9,7 @@ namespace TextToJSON
 {
     internal sealed class Parser
     {
-        List<IDeliminated> filesToProcess = new List<IDeliminated>();
+        List<IDelimited> filesToProcess = new List<IDelimited>();
 
         bool hasErrors => ErrorCollection.Instance?.Errors.Any() ?? false;
 
@@ -21,7 +21,7 @@ namespace TextToJSON
 
             foreach (var name in fileNames)
             {
-                filesToProcess.Add(new DeliminatedFile(name));
+                filesToProcess.Add(new DelimitedFile(name));
             }
 
             if (hasErrors)

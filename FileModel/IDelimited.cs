@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TextToJSON
 {
-    internal interface IDeliminated
+    internal interface IDelimited
     {
         public string Delimiter { get; set; }
         public string FilePath { get; set; }

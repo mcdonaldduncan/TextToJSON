@@ -20,7 +20,7 @@ namespace TextToJSON
         /// </summary>
         /// <param name="filesToProcess">List of Ideliminated files prepared by the parser and deliminated file constructor</param>
         /// <returns errors>List of errors while processing</returns>
-        public bool ProcessFiles(List<IDeliminated> filesToProcess)
+        public bool ProcessFiles(List<IDelimited> filesToProcess)
         {
             Thread[] threads = new Thread[filesToProcess.Count];
 
@@ -56,7 +56,7 @@ namespace TextToJSON
         /// </summary>
         /// <param name="deliminatedFile"></param>
         /// <param name="threadIndex"></param>
-        void ProcessFile(IDeliminated deliminatedFile, int threadIndex)
+        void ProcessFile(IDelimited deliminatedFile, int threadIndex)
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
             StringBuilder report = new StringBuilder();
