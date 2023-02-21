@@ -7,7 +7,7 @@ using static TextToJSON.Constant;
 
 namespace TextToJSON
 {
-    internal class Parser
+    internal sealed class Parser
     {
         List<IDeliminated> filesToProcess = new List<IDeliminated>();
 

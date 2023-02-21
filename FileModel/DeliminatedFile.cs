@@ -8,7 +8,7 @@ using TextToJSON.ErrorReporting;
 
 namespace TextToJSON
 {
-    internal class DeliminatedFile : IDeliminated
+    internal sealed class DeliminatedFile : IDeliminated
     {
         private string delimiter;
         private string filePath;
@@ -45,6 +45,5 @@ namespace TextToJSON
                 ErrorCollection.Instance.Errors.Add(new Error($"Invalid File Extension, {_fileName.Substring(_fileName.LastIndexOf("."))} is not supported", $"{_fileName}"));
             }
         }
-
     }
 }

@@ -7,7 +7,7 @@ using TextToJSON.ErrorReporting;
 
 namespace TextToJSON
 {
-    sealed class ErrorCollection
+    internal sealed class ErrorCollection
     {
         public static readonly Lazy<ErrorCollection> lazy = new Lazy<ErrorCollection>(() => new ErrorCollection());
 

@@ -12,7 +12,7 @@ namespace TextToJSON
 
         private const string writeFolder = "out";
 
-        public const string breakLine = "---------------------------------------------------------------------------------------------------------";
+        public const string breakLine = "------------------------------------------------------------------------------------------------------------------------";
 
         public static string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), folderName);
 
