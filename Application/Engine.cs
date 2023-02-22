@@ -9,9 +9,6 @@ namespace TextToJSON
 {
     internal sealed class Engine
     {
-        
-        string errorFile = string.Empty;
-
         /// <summary>
         /// ProcessFiles takes a list of IDeliminated files with Pipe(txt) or csv extension and processes each of them in parallel
         /// </summary>
@@ -159,7 +156,7 @@ namespace TextToJSON
                             }
 
 
-                            if (DataContainsCommas(fields.Length, lineItems.Length)) 
+                            if (lines.Count < 4 && DataContainsCommas(fields.Length, lineItems.Length)) 
                                 return ReadFile(delimitedFile, out lines, out fields, true);
                         }
                     }
