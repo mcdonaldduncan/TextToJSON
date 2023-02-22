@@ -1,7 +1,8 @@
 ﻿using System.Text;
-using TextToJSON.ErrorReporting;
 using System.Diagnostics;
+using System.IO;
 using Microsoft.VisualBasic.FileIO;
+using TextToJSON.ErrorReporting;
 using static TextToJSON.Constant;
 using static TextToJSON.Application.Utility;
 
@@ -17,9 +18,11 @@ namespace TextToJSON
         public bool ProcessFiles(List<IDelimited> filesToProcess)
         {
             Thread[] threads = new Thread[filesToProcess.Count];
-
+            
             try
             {
+                Directory.CreateDirectory(writeDirectory);
+
                 for (int i = 0; i < filesToProcess.Count; i++)
                 {
                     int temp = i;
