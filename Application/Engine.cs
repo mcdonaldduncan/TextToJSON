@@ -1,12 +1,8 @@
-﻿using Microsoft.VisualBasic;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static TextToJSON.Constant;
+﻿using System.Text;
 using TextToJSON.ErrorReporting;
 using System.Diagnostics;
+using static TextToJSON.Constant;
+using static TextToJSON.Application.Utility;
 
 namespace TextToJSON
 {
@@ -43,7 +39,7 @@ namespace TextToJSON
             {
                 ErrorCollection.Instance.Errors.Add(new Error(e.Message, e.Source ?? "Unknown"));
                 Console.WriteLine($"Error while processing files, check errors for more detail");
-                
+
                 return false;
             }
 
@@ -54,80 +50,133 @@ namespace TextToJSON
         /// ProcessFile takes a deliminated file and the index of the thread it runs on. The file is processed into a list of string arrays for fields and a string arr for fields
         /// processed arrays are then formatted into JSON, adding an additional index field
         /// </summary>
-        /// <param name="deliminatedFile"></param>
+        /// <param name="delimitedFile"></param>
         /// <param name="threadIndex"></param>
-        void ProcessFile(IDelimited deliminatedFile, int threadIndex)
+        void ProcessFile(IDelimited delimitedFile, int threadIndex)
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
             StringBuilder report = new StringBuilder();
 
-            List<string[]> lines = new List<string[]>();
-            string[] fields = null;
+            //List<string[]> lines = new List<string[]>();
+            //string[] fields = null;
 
             report.AppendLine(breakLine);
             report.AppendLine(DateTime.Now.ToString());
-            report.AppendLine($"Processing {deliminatedFile.FileName}");
+            report.AppendLine($"Processing {delimitedFile.FileName}");
 
-            if (File.Exists(deliminatedFile.WritePath))
+            if (File.Exists(delimitedFile.WritePath))
             {
-                File.Delete(deliminatedFile.WritePath);
+                File.Delete(delimitedFile.WritePath);
             }
 
-            using (StreamReader sr = new StreamReader(deliminatedFile.FilePath))
+            if (ReadFile(delimitedFile, out List<string[]> lines, out string[] fields))
             {
-                bool fieldsCollected = false;
-                while (!sr.EndOfStream)
-                {
-                    var lineItems = sr.ReadLine()?.Split(deliminatedFile.Delimiter) ?? new string[0];
-
-                    for (int i = 0; i < lineItems.Length; i++) lineItems[i] = lineItems[i].Trim('"');
-
-                    if (fieldsCollected) lines.Add(lineItems);
-                    else
-                    {
-                        fields = lineItems;
-                        fieldsCollected = true;
-                    }
-                }
-                report.AppendLine("File read successful");
+                report.AppendLine("File Read Successful");
+            }
+            else
+            {
+                report.AppendLine(breakLine);
+                Console.Write(report.ToString());
+                return;
             }
 
-            using (StreamWriter sw = new StreamWriter(deliminatedFile.WritePath, true))
+            if (WriteFile(delimitedFile, lines, fields))
             {
-                sw.WriteLine("[");
-
-                for (int n = 0; n < lines.Count; n++)
-                {
-                    sw.WriteLine("  {");
-                    sw.WriteLine(@$"     ""ID"": {n + 1},");
-                    for (int j = 0; j < lines[n].Length; j++)
-                    {
-                        string temp = string.Empty;
-
-                        if (int.TryParse(lines[n][j], out _) && j < fields?.Length && fields[j] != "Code") temp = lines[n][j];
-                        else temp = $@"""{lines[n][j]}""";
-
-                        if (j < fields?.Length) sw.Write(@$"     ""{fields[j]}"": {temp}");
-                        else sw.Write(@$"     ""Field{j + 1}"": {temp}");
-
-                        if (!(j + 1 == lines[n].Length)) sw.Write("," + Environment.NewLine);
-                        else sw.Write(Environment.NewLine);
-                    }
-
-                    sw.Write("  }");
-                    if (!(n + 1 == lines.Count)) sw.Write("," + Environment.NewLine);
-                    else sw.Write(Environment.NewLine);
-                }
-
-                sw.Write("]");
-
-                report.AppendLine("File write successful");
-                report.AppendLine($"Location: {deliminatedFile.WritePath}");
+                report.AppendLine($"File write successful");
+                report.AppendLine($"Size: {BytesToString(delimitedFile.writeInfo.Length)}");
+                report.AppendLine($"Location: {delimitedFile.WritePath}");
                 report.AppendLine($"Thread {threadIndex} Time: {stopwatch.Elapsed}");
                 report.AppendLine(breakLine);
             }
+            else
+            {
+                report.AppendLine(breakLine);
+                Console.Write(report.ToString());
+                return;
+            }
 
             Console.Write(report.ToString());
+        }
+
+
+        bool ReadFile(IDelimited delimitedFile, out List<string[]> lines, out string[] fields)
+        {
+            lines = new List<string[]>();
+            fields = new string[0];
+
+            try
+            {
+                using (StreamReader sr = new StreamReader(delimitedFile.FilePath))
+                {
+                    bool fieldsCollected = false;
+                    while (!sr.EndOfStream)
+                    {
+                        var lineItems = sr.ReadLine()?.Split(delimitedFile.Delimiter) ?? new string[0];
+
+                        for (int i = 0; i < lineItems.Length; i++) lineItems[i] = lineItems[i].Trim('"');
+
+                        if (fieldsCollected) lines.Add(lineItems);
+                        else
+                        {
+                            fields = lineItems;
+                            fieldsCollected = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                ErrorCollection.Instance.Errors.Add(new Error(e.Message, e.Source ?? "Unknown"));
+                Console.WriteLine($"Error while reading {delimitedFile.FileName}, check errors for more detail");
+                return false;
+            }
+
+            return true;
+        }
+
+
+        bool WriteFile(IDelimited delimitedFile, List<string[]> lines, string[] fields)
+        {
+            try
+            {
+                using (StreamWriter sw = new StreamWriter(delimitedFile.WritePath, true))
+                {
+                    sw.WriteLine("[");
+
+                    for (int n = 0; n < lines.Count; n++)
+                    {
+                        sw.WriteLine("  {");
+                        sw.WriteLine(@$"     ""ID"": {n + 1},");
+                        for (int j = 0; j < lines[n].Length; j++)
+                        {
+                            string temp = string.Empty;
+
+                            if (int.TryParse(lines[n][j], out _) && j < fields?.Length && fields[j] != "Code") temp = lines[n][j];
+                            else temp = $@"""{lines[n][j]}""";
+
+                            if (j < fields?.Length) sw.Write(@$"     ""{fields[j]}"": {temp}");
+                            else sw.Write(@$"     ""Field{j + 1}"": {temp}");
+
+                            if (!(j + 1 == lines[n].Length)) sw.Write("," + Environment.NewLine);
+                            else sw.Write(Environment.NewLine);
+                        }
+
+                        sw.Write("  }");
+                        if (!(n + 1 == lines.Count)) sw.Write("," + Environment.NewLine);
+                        else sw.Write(Environment.NewLine);
+                    }
+
+                    sw.Write("]");
+                }
+            }
+            catch (Exception e)
+            {
+                ErrorCollection.Instance.Errors.Add(new Error(e.Message, e.Source ?? "Unknown"));
+                Console.WriteLine($"Error while writing JSON file for {delimitedFile.FileName}, check errors for more detail");
+                return false;
+            }
+
+            return true;
         }
     }
 }
