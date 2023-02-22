@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using TextToJSON.ErrorReporting;
 using System.Diagnostics;
+using Microsoft.VisualBasic.FileIO;
 using static TextToJSON.Constant;
 using static TextToJSON.Application.Utility;
 
@@ -54,72 +55,112 @@ namespace TextToJSON
         /// <param name="threadIndex"></param>
         void ProcessFile(IDelimited delimitedFile, int threadIndex)
         {
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            StringBuilder report = new StringBuilder();
-
-            //List<string[]> lines = new List<string[]>();
-            //string[] fields = null;
-
-            report.AppendLine(breakLine);
-            report.AppendLine(DateTime.Now.ToString());
-            report.AppendLine($"Processing {delimitedFile.FileName}");
-
-            if (File.Exists(delimitedFile.WritePath))
+            try
             {
-                File.Delete(delimitedFile.WritePath);
-            }
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                StringBuilder report = new StringBuilder();
 
-            if (ReadFile(delimitedFile, out List<string[]> lines, out string[] fields))
-            {
-                report.AppendLine("File Read Successful");
-            }
-            else
-            {
                 report.AppendLine(breakLine);
+                report.AppendLine(DateTime.Now.ToString());
+                report.AppendLine($"Processing {delimitedFile.FileName}");
+
+                if (File.Exists(delimitedFile.WritePath))
+                {
+                    File.Delete(delimitedFile.WritePath);
+                }
+
+                if (ReadFile(delimitedFile, out List<string[]> lines, out string[] fields))
+                {
+                    report.AppendLine("File Read Successful");
+                }
+                else
+                {
+                    report.AppendLine(breakLine);
+                    Console.Write(report.ToString());
+                    return;
+                }
+
+                if (WriteFile(delimitedFile, lines, fields))
+                {
+                    report.AppendLine($"File write successful");
+                    report.AppendLine($"Size: {BytesToString(delimitedFile.writeInfo.Length)}");
+                    report.AppendLine($"Location: {delimitedFile.WritePath}");
+                    report.AppendLine($"Thread {threadIndex} Time: {stopwatch.Elapsed}");
+                    report.AppendLine(breakLine);
+                }
+                else
+                {
+                    report.AppendLine(breakLine);
+                    Console.Write(report.ToString());
+                    return;
+                }
+
                 Console.Write(report.ToString());
+            }
+            catch (Exception e)
+            {
+                ErrorCollection.Instance.Errors.Add(new Error(e.Message, e.Source ?? "Unknown"));
+                Console.WriteLine($"Error while processing files, check errors for more detail");
                 return;
             }
-
-            if (WriteFile(delimitedFile, lines, fields))
-            {
-                report.AppendLine($"File write successful");
-                report.AppendLine($"Size: {BytesToString(delimitedFile.writeInfo.Length)}");
-                report.AppendLine($"Location: {delimitedFile.WritePath}");
-                report.AppendLine($"Thread {threadIndex} Time: {stopwatch.Elapsed}");
-                report.AppendLine(breakLine);
-            }
-            else
-            {
-                report.AppendLine(breakLine);
-                Console.Write(report.ToString());
-                return;
-            }
-
-            Console.Write(report.ToString());
         }
 
-
-        bool ReadFile(IDelimited delimitedFile, out List<string[]> lines, out string[] fields)
+        bool ReadFile(IDelimited delimitedFile, out List<string[]> lines, out string[] fields, bool containsCommas = false)
         {
             lines = new List<string[]>();
             fields = new string[0];
 
             try
             {
-                using (StreamReader sr = new StreamReader(delimitedFile.FilePath))
+                if (containsCommas)
                 {
-                    bool fieldsCollected = false;
-                    while (!sr.EndOfStream)
+                    using (TextFieldParser parser = new TextFieldParser(delimitedFile.FilePath))
                     {
-                        var lineItems = sr.ReadLine()?.Split(delimitedFile.Delimiter) ?? new string[0];
+                        bool fieldsCollected = false;
 
-                        for (int i = 0; i < lineItems.Length; i++) lineItems[i] = lineItems[i].Trim('"');
+                        parser.TextFieldType = FieldType.Delimited;
+                        parser.SetDelimiters(delimitedFile.Delimiter);
 
-                        if (fieldsCollected) lines.Add(lineItems);
-                        else
+                        while (!parser.EndOfData)
                         {
-                            fields = lineItems;
-                            fieldsCollected = true;
+                            var lineItems = parser.ReadFields();
+
+                            if (lineItems == null) continue;
+
+                            for (int i = 0; i < lineItems.Length; i++) lineItems[i] = lineItems[i].Trim('"');
+
+                            if (fieldsCollected) lines.Add(lineItems);
+                            else
+                            {
+                                fields = lineItems;
+                                fieldsCollected = true;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    using (StreamReader sr = new StreamReader(delimitedFile.FilePath))
+                    {
+                        bool fieldsCollected = false;
+                        while (!sr.EndOfStream)
+                        {
+                            
+
+                            var lineItems = sr.ReadLine()?.Split(delimitedFile.Delimiter) ?? new string[0];
+
+                            for (int i = 0; i < lineItems.Length; i++) lineItems[i] = lineItems[i].Trim('"');
+
+                            if (fieldsCollected) lines.Add(lineItems);
+                            else
+                            {
+                                fields = lineItems;
+                                fieldsCollected = true;
+                            }
+
+
+                            if (DataContainsCommas(fields.Length, lineItems.Length)) 
+                                return ReadFile(delimitedFile, out lines, out fields, true);
                         }
                     }
                 }
@@ -133,7 +174,6 @@ namespace TextToJSON
 
             return true;
         }
-
 
         bool WriteFile(IDelimited delimitedFile, List<string[]> lines, string[] fields)
         {
@@ -177,6 +217,14 @@ namespace TextToJSON
             }
 
             return true;
+        }
+
+        bool DataContainsCommas(int fieldsLength, int dataLength)
+        {
+            if (fieldsLength == 0) return false;
+            if (dataLength == 0) return false;
+
+            return !(fieldsLength == dataLength);
         }
     }
 }

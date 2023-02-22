@@ -41,6 +41,8 @@ namespace TextToJSON
                 ErrorCollection.Instance.ReportErrors();
             }
 
+
+            if (hasErrors) ErrorCollection.Instance.ReportErrors();
         }
 
         List<string> GetAllFiles()
