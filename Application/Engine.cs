@@ -83,7 +83,7 @@ namespace TextToJSON
                 if (WriteFile(delimitedFile, lines, fields))
                 {
                     report.AppendLine($"File write successful");
-                    report.AppendLine($"Size: {BytesToString(delimitedFile.writeInfo.Length)}");
+                    report.AppendLine($"Size: {BytesToString(delimitedFile.WriteInfo.Length)}");
                     report.AppendLine($"Location: {delimitedFile.WritePath}");
                     report.AppendLine($"Thread {threadIndex} Time: {stopwatch.Elapsed}");
                     report.AppendLine(breakLine);

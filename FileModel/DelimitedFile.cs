@@ -23,9 +23,6 @@ namespace TextToJSON
         public string WritePath { get => writePath; set => writePath = value; }
 
 
-       
-
-
         public DelimitedFile(string _fileName)
         {
             fileName = _fileName.Substring(_fileName.LastIndexOf(@"\") + 1);
